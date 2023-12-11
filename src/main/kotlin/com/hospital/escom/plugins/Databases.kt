@@ -1,7 +1,7 @@
 package com.hospital.escom.plugins
 
-import io.ktor.server.application.*
-import org.jetbrains.exposed.sql.*
+import io.ktor.server.application.Application
+import org.jetbrains.exposed.sql.Database
 
 private const val URL = "url"
 private const val DATABASE_USER = "user"

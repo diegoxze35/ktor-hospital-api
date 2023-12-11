@@ -1,12 +1,22 @@
 package com.hospital.escom.adapter.routes
 
-import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import com.hospital.escom.application.port.`in`.LoginPortService
+import com.hospital.escom.domain.UserCredentials
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.call
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.post
 
-fun Routing.login() {
+fun Routing.login(loginService: LoginPortService) {
 	post("/login") {
-		newSuspendedTransaction {
-		
-		}
+		val credentials = call.receive<UserCredentials>()
+		loginService.login(credentials)?.let {
+			call.respond(status = HttpStatusCode.OK, message = it)
+		} ?: call.respond(
+			status = HttpStatusCode.NotAcceptable,
+			message = "Bad Credentials"
+		)
 	}
 }

@@ -4,6 +4,7 @@ val kotlin_version: String by project
 val logback_version: String by project
 val sqlserver_driver_version: String by project
 val exposed_version: String by project
+val koin_ktor: String by project
 plugins {
 	kotlin("jvm") version "1.9.21"
 	id("io.ktor.plugin") version "2.3.6"
@@ -37,6 +38,8 @@ dependencies {
 	implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
 	implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
 	/*Database*/
+	
+	implementation ("io.insert-koin:koin-ktor:$koin_ktor")
 	
 	implementation("io.ktor:ktor-server-netty-jvm")
 	implementation("ch.qos.logback:logback-classic:$logback_version")

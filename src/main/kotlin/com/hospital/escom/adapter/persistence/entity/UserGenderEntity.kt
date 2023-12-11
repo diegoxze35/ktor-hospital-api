@@ -7,5 +7,5 @@ import org.jetbrains.exposed.dao.id.EntityID
 
 class UserGenderEntity(id: EntityID<Int>) : IntEntity(id) {
 	companion object : IntEntityClass<UserGenderEntity>(UserGender)
-	val gender by UserGender.gender
+	val genderName by UserGender.gender
 }

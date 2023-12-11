@@ -2,16 +2,19 @@ package com.hospital.escom.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
+import io.ktor.server.application.Application
+import io.ktor.server.auth.authentication
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.jwt.jwt
 
+private const val JWT_CONFIG = "jwt"
 fun Application.configureSecurity() {
-	// Please read the jwt property from the config file if you are using EngineMain
-	val jwtAudience = "jwt-audience"
-	val jwtDomain = "https://jwt-provider-domain/"
-	val jwtRealm = "ktor sample app"
-	val jwtSecret = "secret"
+	
+	val jwtConfig = environment.config.config(JWT_CONFIG)
+	val jwtAudience = jwtConfig.property("audience").getString()
+	val jwtIssuer = jwtConfig.property("issuer").getString()
+	val jwtRealm = jwtConfig.property("realm").getString()
+	val jwtSecret = System.getenv("jwt_secret")
 	authentication {
 		jwt {
 			realm = jwtRealm
@@ -19,7 +22,7 @@ fun Application.configureSecurity() {
 				JWT
 					.require(Algorithm.HMAC256(jwtSecret))
 					.withAudience(jwtAudience)
-					.withIssuer(jwtDomain)
+					.withIssuer(jwtIssuer)
 					.build()
 			)
 			validate { credential ->

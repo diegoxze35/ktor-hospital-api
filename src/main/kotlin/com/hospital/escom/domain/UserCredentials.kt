@@ -3,6 +3,4 @@ package com.hospital.escom.domain
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class UserGender {
-	Male, Female
-}
+data class UserCredentials(val username: String, val password: String)
