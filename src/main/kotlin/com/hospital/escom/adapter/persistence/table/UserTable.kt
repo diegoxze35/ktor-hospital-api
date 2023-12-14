@@ -12,5 +12,5 @@ object UserTable : IntIdTable(name = "Usuario", columnName = "idUsuario") {
 	val username = varchar(name = "nombreUsuario", length = LENGTH)
 	val password = varchar(name = "contraseña", length = LENGTH)
 	val userRol = reference(name = "idRol", UserRoleTable)
-	val idGender = reference(name = "idGenero", UserGender)
+	val idGender = reference(name = "idGenero", UserGenderTable)
 }

@@ -7,5 +7,5 @@ import org.jetbrains.exposed.dao.id.EntityID
 
 class UserRoleEntity(id: EntityID<Int>) : IntEntity(id) {
 	companion object : IntEntityClass<UserRoleEntity>(UserRoleTable)
-	val roleName by UserRoleTable.rolName
+	val roleType by UserRoleTable.rolName
 }

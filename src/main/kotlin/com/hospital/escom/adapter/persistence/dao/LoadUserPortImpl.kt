@@ -1,9 +1,13 @@
 package com.hospital.escom.adapter.persistence.dao
 
+import com.hospital.escom.adapter.persistence.entity.DoctorEntity
+import com.hospital.escom.adapter.persistence.entity.PatientEntity
+import com.hospital.escom.adapter.persistence.entity.ReceptionistEntity
 import com.hospital.escom.adapter.persistence.entity.UserEntity
 import com.hospital.escom.application.port.out.LoadUserPort
-import com.hospital.escom.domain.User
+import com.hospital.escom.domain.user.User
 import com.hospital.escom.domain.UserCredentials
+import com.hospital.escom.domain.UserRole
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.VarCharColumnType
 import org.jetbrains.exposed.sql.statements.StatementType
@@ -27,7 +31,12 @@ class LoadUserPortImpl : LoadUserPort {
 			it.getInt(resultColum)
 		}
 		return@newSuspendedTransaction if (userId != null && userId > 0) {
-			UserEntity.findById(userId)!!.toDomain()
+			val userType = UserEntity[userId].role.roleType
+			when (enumValueOf<UserRole>(userType)) {
+				UserRole.Patient -> PatientEntity[userId]
+				UserRole.Doctor -> DoctorEntity[userId]
+				UserRole.Receptionist -> ReceptionistEntity[userId]
+			}.toDomain()
 		} else null
 	}
 }

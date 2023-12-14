@@ -13,7 +13,7 @@ fun Routing.login(loginService: LoginPortService) {
 	post("/login") {
 		val credentials = call.receive<UserCredentials>()
 		loginService.login(credentials)?.let {
-			call.respond(status = HttpStatusCode.OK, message = it)
+				call.respond(status = HttpStatusCode.OK, message = it)
 		} ?: call.respond(
 			status = HttpStatusCode.NotAcceptable,
 			message = "Bad Credentials"
