@@ -5,7 +5,7 @@ import com.hospital.escom.adapter.persistence.entity.PatientEntity
 import com.hospital.escom.adapter.persistence.entity.ReceptionistEntity
 import com.hospital.escom.adapter.persistence.entity.UserEntity
 import com.hospital.escom.application.port.out.LoadUserPort
-import com.hospital.escom.domain.user.User
+import com.hospital.escom.application.port.out.domain.LoadResult
 import com.hospital.escom.domain.UserCredentials
 import com.hospital.escom.domain.UserRole
 import kotlinx.coroutines.Dispatchers
@@ -16,11 +16,12 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 class LoadUserPortImpl : LoadUserPort {
 	private val columnUser = "nombreUsuario"
 	private val passwordColum = "contraseña"
-	private val resultColum = "idUsuario"
-	override suspend fun loadUser(credentials: UserCredentials): User? = newSuspendedTransaction(Dispatchers.IO) {
+	private val resultIdColum = "idUsuario"
+	private val resultPasswordColum = "correctPassword"
+	override suspend fun loadUser(credentials: UserCredentials): LoadResult = newSuspendedTransaction(Dispatchers.IO) {
 		val (username, password) = credentials
-		val userId = exec(
-			stmt = "exec login ?, ?",
+		val result = exec(
+			stmt = "exec login_sp ?, ?",
 			args = listOf(
 				VarCharColumnType(collate = columnUser, colLength = 50) to username,
 				VarCharColumnType(collate = passwordColum, colLength = 50) to password
@@ -28,15 +29,23 @@ class LoadUserPortImpl : LoadUserPort {
 			explicitStatementType = StatementType.EXEC
 		) {
 			it.next()
-			it.getInt(resultColum)
+			val id: Int = it.getInt(resultIdColum)
+			val correctPassword: Int = it.getInt(resultPasswordColum)
+			id to (correctPassword == 1)
 		}
-		return@newSuspendedTransaction if (userId != null && userId > 0) {
-			val userType = UserEntity[userId].role.roleType
-			when (enumValueOf<UserRole>(userType)) {
+		val (userId, isCorrectPassword) = result ?: return@newSuspendedTransaction LoadResult.LoadNotFound
+		return@newSuspendedTransaction if (userId > 0) {
+			val role = enumValueOf<UserRole>(UserEntity[userId].role.roleType)
+			val user = when (role) {
 				UserRole.Patient -> PatientEntity[userId]
 				UserRole.Doctor -> DoctorEntity[userId]
 				UserRole.Receptionist -> ReceptionistEntity[userId]
 			}.toDomain()
-		} else null
+			if (isCorrectPassword)
+				LoadResult.LoadWithCorrectPassword(user = user)
+			else
+				LoadResult.LoadWithIncorrectPassword(user = user)
+		} else
+			LoadResult.LoadNotFound
 	}
 }

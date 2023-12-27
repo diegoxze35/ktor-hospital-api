@@ -2,10 +2,12 @@ package com.hospital.escom.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.hospital.escom.adapter.persistence.entity.UserEntity
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
+import org.jetbrains.exposed.sql.transactions.transaction
 
 private const val JWT_CONFIG = "jwt"
 fun Application.configureSecurity() {
@@ -23,10 +25,20 @@ fun Application.configureSecurity() {
 					.require(Algorithm.HMAC256(jwtSecret))
 					.withAudience(jwtAudience)
 					.withIssuer(jwtIssuer)
+					.withClaimPresence("role")
+					.withClaimPresence("userId")
 					.build()
 			)
+			
 			validate { credential ->
-				if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
+				val existUser = credential["userId"]?.toInt()?.let {
+					transaction {
+						UserEntity.findById(it) !== null
+					}
+				} ?: return@validate null
+				if (existUser && credential.payload.audience.contains(jwtAudience))
+					JWTPrincipal(credential.payload)
+				else null
 			}
 		}
 	}
