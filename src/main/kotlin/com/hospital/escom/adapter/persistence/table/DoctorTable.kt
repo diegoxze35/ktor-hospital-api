@@ -9,4 +9,5 @@ object DoctorTable : IdTable<Int>(name = "Doctor") {
 	override val primaryKey: PrimaryKey = PrimaryKey(firstColumn = id, name = "idDoctor")
 	val speciality = reference(name = "idEspecialidad", DoctorSpecialityTable)
 	val license = integer(name = "cedula")
+	val state = reference(name = "estado", DoctorStateTable)
 }

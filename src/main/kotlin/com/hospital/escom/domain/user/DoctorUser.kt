@@ -7,7 +7,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("Doctor")
 data class DoctorUser(
-	override val id: Int,
 	override val name: String,
 	override val paternal: String,
 	override val maternal: String,

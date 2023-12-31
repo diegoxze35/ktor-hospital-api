@@ -3,20 +3,19 @@ package com.hospital.escom.adapter.persistence.entity
 import com.hospital.escom.adapter.persistence.table.DoctorTable
 import com.hospital.escom.application.mappers.DomainWrapper
 import com.hospital.escom.domain.user.DoctorUser
-import com.hospital.escom.domain.user.User
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
-class DoctorEntity(id: EntityID<Int>) : IntEntity(id), DomainWrapper<User> {
+class DoctorEntity(id: EntityID<Int>) : IntEntity(id), DomainWrapper<DoctorUser> {
 	companion object : IntEntityClass<DoctorEntity>(DoctorTable)
-	val user by UserEntity referencedOn DoctorTable.id
-	val speciality by DoctorSpecialityEntity referencedOn DoctorTable.speciality
-	val license by DoctorTable.license
+	var user by UserEntity referencedOn DoctorTable.id
+	var speciality by DoctorSpecialityEntity referencedOn DoctorTable.speciality
+	var license by DoctorTable.license
+	var state by DoctorStateEntity referencedOn DoctorTable.state
 	
-	override fun toDomain(): User {
+	override fun toDomain(): DoctorUser {
 		return DoctorUser(
-			id = user.id.value,
 			name = user.name,
 			maternal = user.maternal,
 			paternal = user.paternal,

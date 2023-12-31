@@ -11,8 +11,8 @@ class UserEntity(id: EntityID<Int>) : IntEntity(id) {
 	var name by UserTable.name
 	var paternal by UserTable.paternal
 	var maternal by UserTable.maternal
-	val username by UserTable.username
+	var username by UserTable.username
 	var password by UserTable.password
-	val role by UserRoleEntity referencedOn UserTable.userRol
-	val gender by UserGenderEntity referencedOn UserTable.idGender
+	var role by UserRoleEntity referencedOn UserTable.userRol
+	var gender by UserGenderEntity referencedOn UserTable.idGender
 }

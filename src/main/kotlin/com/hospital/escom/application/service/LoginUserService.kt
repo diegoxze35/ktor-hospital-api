@@ -27,7 +27,7 @@ class LoginUserService(
 			}
 			token = tokenGenerator.createToken(
 				tokenConfig,
-				claims = arrayOf("role" to roleClaim, "userId" to "${result.user.id}")
+				"role" to roleClaim, "userId" to "${result.userId}"
 			)
 		}
 		return LoginResult(token = token, user = result.user)

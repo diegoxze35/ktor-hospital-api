@@ -7,5 +7,5 @@ import org.jetbrains.exposed.dao.id.EntityID
 
 class DoctorSpecialityEntity(id: EntityID<Int>) : IntEntity(id) {
 	companion object : IntEntityClass<DoctorSpecialityEntity>(DoctorSpecialityTable)
-	val specialityName by DoctorSpecialityTable.speciality
+	var specialityName by DoctorSpecialityTable.speciality
 }

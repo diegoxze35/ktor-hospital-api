@@ -9,7 +9,6 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 @Serializable
 @JsonClassDiscriminator("userType")
 sealed class User {
-	abstract val id: Int
 	abstract val name: String
 	abstract val paternal: String
 	abstract val maternal: String

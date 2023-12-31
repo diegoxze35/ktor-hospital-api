@@ -1,4 +1,4 @@
-package com.hospital.escom.adapter.persistence.dao
+package com.hospital.escom.adapter.persistence.repository
 
 import com.hospital.escom.adapter.persistence.entity.DoctorEntity
 import com.hospital.escom.adapter.persistence.entity.PatientEntity
@@ -42,7 +42,7 @@ class LoadUserPortImpl : LoadUserPort {
 				UserRole.Receptionist -> ReceptionistEntity[userId]
 			}.toDomain()
 			if (isCorrectPassword)
-				LoadResult.LoadWithCorrectPassword(user = user)
+				LoadResult.LoadWithCorrectPassword(user = user, userId = userId)
 			else
 				LoadResult.LoadWithIncorrectPassword(user = user)
 		} else
