@@ -3,10 +3,13 @@ package com.hospital.escom.plugins
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.hospital.escom.adapter.persistence.repository.LoadUserPortImpl
+import com.hospital.escom.adapter.persistence.repository.medicalinformation.DoctorMedicalInformationRepositoryImpl
+import com.hospital.escom.adapter.persistence.repository.medicalinformation.PatientMedicalInformationRepositoryImpl
 import com.hospital.escom.adapter.persistence.repository.user.DoctorRepository
 import com.hospital.escom.adapter.persistence.repository.user.PatientRepository
 import com.hospital.escom.adapter.persistence.repository.user.ReceptionistRepository
 import com.hospital.escom.application.port.`in`.LoginPortService
+import com.hospital.escom.application.port.`in`.medicalinformation.MedicalInformationService
 import com.hospital.escom.application.port.`in`.user.UserService
 import com.hospital.escom.application.port.out.LoadUserPort
 import com.hospital.escom.application.port.out.TokenConfig
@@ -14,6 +17,8 @@ import com.hospital.escom.application.port.out.TokenGenerator
 import com.hospital.escom.application.port.out.user.UserRepository
 import com.hospital.escom.application.service.LoginUserService
 import com.hospital.escom.application.service.UserServiceImpl
+import com.hospital.escom.application.service.medicalinformation.DoctorMedicalInformationService
+import com.hospital.escom.application.service.medicalinformation.PatientMedicalInformationService
 import com.hospital.escom.domain.user.DoctorUser
 import com.hospital.escom.domain.user.PatientUser
 import com.hospital.escom.domain.user.ReceptionistUser
@@ -23,15 +28,18 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import java.util.*
 import org.koin.core.module.Module
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 
 fun Application.configureDependencyInjection() {
 	install(Koin) {
+		
 		modules(
 			loginModule,
 			tokenConfigurationModule(this@configureDependencyInjection),
-			userRepositoryModule
+			userRepositoryModule,
+			medicalInformationModule
 		)
 	}
 }
@@ -74,6 +82,7 @@ val loginModule = module {
 
 val userRepositoryModule = module {
 	single<UserService> {
+		@Suppress("UNCHECKED_CAST")
 		UserServiceImpl {
 			when (it) {
 				is PatientUser -> PatientRepository()
@@ -81,5 +90,22 @@ val userRepositoryModule = module {
 				is ReceptionistUser -> ReceptionistRepository()
 			} as UserRepository<User>
 		}
+	}
+}
+
+val medicalInformationModule = module {
+	single<MedicalInformationService>(
+		named("DoctorService")
+	) {
+		DoctorMedicalInformationService(
+			DoctorMedicalInformationRepositoryImpl()
+		)
+	}
+	single<MedicalInformationService>(
+		named("PatientService")
+	) {
+		PatientMedicalInformationService(
+			PatientMedicalInformationRepositoryImpl()
+		)
 	}
 }

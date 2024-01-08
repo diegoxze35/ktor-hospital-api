@@ -10,9 +10,9 @@ import org.jetbrains.exposed.dao.id.EntityID
 class DoctorEntity(id: EntityID<Int>) : IntEntity(id), DomainWrapper<DoctorUser> {
 	companion object : IntEntityClass<DoctorEntity>(DoctorTable)
 	var user by UserEntity referencedOn DoctorTable.id
-	var speciality by DoctorSpecialityEntity referencedOn DoctorTable.speciality
+	var speciality by MedicalSpecialityEntity referencedOn DoctorTable.speciality
 	var license by DoctorTable.license
-	var state by DoctorStateEntity referencedOn DoctorTable.state
+	var isActive by DoctorTable.isActive
 	
 	override fun toDomain(): DoctorUser {
 		return DoctorUser(
@@ -21,7 +21,8 @@ class DoctorEntity(id: EntityID<Int>) : IntEntity(id), DomainWrapper<DoctorUser>
 			paternal = user.paternal,
 			gender = enumValueOf(user.gender.genderType),
 			speciality = speciality.specialityName,
-			license = license
+			license = license,
+			isActive = isActive
 		)
 	}
 }

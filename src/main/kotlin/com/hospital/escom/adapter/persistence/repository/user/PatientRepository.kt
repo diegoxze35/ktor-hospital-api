@@ -11,6 +11,7 @@ class PatientRepository : BaseUserRepository<PatientUser>() {
 		val newPatient = PatientEntity.new {
 			this.user = newUser
 			personKey = user.personKey
+			isActive = true
 		}.toDomain()
 		return@newSuspendedTransaction CreatedUserResponse(username = newUsername, newUser = newPatient)
 	}

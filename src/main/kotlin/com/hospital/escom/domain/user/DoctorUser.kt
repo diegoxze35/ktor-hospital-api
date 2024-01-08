@@ -12,5 +12,6 @@ data class DoctorUser(
 	override val maternal: String,
 	override val gender: UserGender,
 	val speciality: String,
-	val license: Int
+	val license: Int,
+	val isActive: Boolean
 ) : User()

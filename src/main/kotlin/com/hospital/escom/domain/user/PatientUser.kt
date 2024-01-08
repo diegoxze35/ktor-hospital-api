@@ -11,6 +11,7 @@ data class PatientUser(
 	override val paternal: String,
 	override val maternal: String,
 	override val gender: UserGender,
-	val personKey: String
+	val personKey: String,
+	val isActive: Boolean
 ) : User()
 

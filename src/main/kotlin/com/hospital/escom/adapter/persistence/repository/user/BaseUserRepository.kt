@@ -13,11 +13,11 @@ import org.jetbrains.exposed.sql.VarCharColumnType
 import org.jetbrains.exposed.sql.statements.StatementType
 import org.jetbrains.exposed.sql.transactions.transaction
 
-abstract class BaseUserRepository<in U: User> : UserRepository<U> {
+abstract class BaseUserRepository<in U : User> : UserRepository<U> {
 	
 	protected fun addUserEntity(user: User, password: String): Pair<UserEntity, String> {
 		return transaction {
-			val firstLetterUserRole = user::class.java.simpleName[0].toString()
+			val firstLetterUserRole = "${user::class.java.simpleName[0]}"
 			val username = exec(
 				stmt = "declare @nombre varchar(50);" +
 						"exec @nombre = generarNombreUsuario ?, ?, ?, ?;" +
@@ -39,7 +39,7 @@ abstract class BaseUserRepository<in U: User> : UserRepository<U> {
 				maternal = user.maternal
 				this.password = password
 				this.username = username
-				val idGender = when(user.gender) {
+				val idGender = when (user.gender) {
 					UserGender.Female -> 0
 					UserGender.Male -> 1
 				}

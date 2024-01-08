@@ -11,12 +11,14 @@ class PatientEntity(userId: EntityID<Int>) : IntEntity(userId), DomainWrapper<Pa
 	companion object : IntEntityClass<PatientEntity>(PatientTable)
 	var user by UserEntity referencedOn PatientTable.id
 	var personKey by PatientTable.personKey
+	var isActive by PatientTable.isActive
 	
 	override fun toDomain(): PatientUser = PatientUser(
 		name = user.name,
 		maternal = user.maternal,
 		paternal = user.paternal,
 		gender = enumValueOf(user.gender.genderType),
-		personKey = personKey
+		personKey = personKey,
+		isActive = isActive
 	)
 }

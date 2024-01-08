@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddUserRequest(
-	val password: String,
-	val newUser: User
+	val newUser: User,
+	val password: String
 )

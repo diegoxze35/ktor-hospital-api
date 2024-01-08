@@ -14,13 +14,23 @@ val AuthenticationWithRolesPlugin =
 		name = "AuthWithRoles",
 		createConfiguration = {
 			hashMapOf(
-				UserRole.Patient to setOf("/api/medicalAppointments"),
-				UserRole.Doctor to setOf("/home"),
-				UserRole.Receptionist to setOf("/api/addUser")
+				UserRole.Patient to setOf(
+					"/api/medicalAppointments",
+					"/api/allSpecialities",
+					"/api/allDoctorsBySpecialities",
+					"/api/allRoomNumbers",
+					"/api/medicalAppointmentTimes",
+					"/api/scheduleMedicalAppointment",
+					"/api/updateMedicalAppointment",
+					"/api/cancelCite"
+				),
+				UserRole.Doctor to setOf("/api/doctorMedicalAppointments", "/api/generateMedicalPrescription"),
+				UserRole.Receptionist to setOf("/api/addUser", "/api/allSpecialities", "/api/allUsers", "/api/updateIsActive")
 			)
 		}
 	) {
 		on(AuthenticationChecked) { call ->
+			
 			val principal = (call.principal<JWTPrincipal>()) ?: kotlin.run {
 				call.respondText(status = HttpStatusCode.Forbidden) { "You are not authenticated" }
 				return@on
@@ -30,7 +40,7 @@ val AuthenticationWithRolesPlugin =
 				return@on
 			}
 			val uri = call.request.uri
-			if (uri !in pluginConfig.getValue(role))
+			if (pluginConfig.getValue(role).firstOrNull { uri.startsWith(it) } == null)
 				call.respondText(status = HttpStatusCode.Forbidden) {
 					"$role\'s are not allowed this endpoint"
 				}

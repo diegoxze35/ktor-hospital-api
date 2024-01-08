@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.Column
 object DoctorTable : IdTable<Int>(name = "Doctor") {
 	override val id: Column<EntityID<Int>> = reference(name = "idDoctor", UserTable)
 	override val primaryKey: PrimaryKey = PrimaryKey(firstColumn = id, name = "idDoctor")
-	val speciality = reference(name = "idEspecialidad", DoctorSpecialityTable)
+	val speciality = reference(name = "idEspecialidad", MedicalSpecialityTable)
 	val license = integer(name = "cedula")
-	val state = reference(name = "estado", DoctorStateTable)
+	val isActive = bool(name = "activo")
 }
