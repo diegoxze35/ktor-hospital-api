@@ -5,9 +5,15 @@ import com.hospital.escom.adapter.persistence.entity.PatientEntity
 import com.hospital.escom.adapter.persistence.table.DoctorTable
 import com.hospital.escom.adapter.persistence.table.MedicalCiteTable
 import com.hospital.escom.adapter.persistence.table.PatientTable
+import com.hospital.escom.adapter.persistence.table.TicketTable
+import com.hospital.escom.adapter.persistence.table.TotalTicket
+import com.hospital.escom.adapter.persistence.table.UserTable
 import com.hospital.escom.adapter.routes.receptionist.domain.AddUserRequest
+import com.hospital.escom.adapter.routes.receptionist.domain.EmitTicketRequest
 import com.hospital.escom.adapter.routes.receptionist.domain.UpdateIsActiveUserRequest
 import com.hospital.escom.application.port.`in`.user.UserService
+import com.hospital.escom.domain.Ticket
+import com.hospital.escom.domain.TicketResponse
 import com.hospital.escom.domain.UpdatableUser
 import com.hospital.escom.domain.UserResponse
 import io.ktor.http.HttpStatusCode
@@ -16,11 +22,16 @@ import io.ktor.server.plugins.CannotTransformContentToTypeException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
+import org.jetbrains.exposed.sql.Concat
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.update
 
@@ -83,9 +94,11 @@ fun Route.receptionistRoutes(userService: UserService) {
 			}
 			when (updatableUserRequest.userType) {
 				UpdatableUser.Patient -> {
-					PatientTable.update(where = {
-						PatientTable.id eq updatableUserRequest.userId
-					}) {
+					PatientTable.update(
+						where = {
+							PatientTable.id eq updatableUserRequest.userId
+						}
+					) {
 						it[isActive] = updatableUserRequest.newIsActive
 					}
 				}
@@ -101,6 +114,57 @@ fun Route.receptionistRoutes(userService: UserService) {
 				}
 			}
 			call.respond(status = HttpStatusCode.Accepted, updatableUserRequest.userId)
+		}
+	}
+	
+	get("/allTickets") {
+		newSuspendedTransaction {
+			val columnFullName = Concat(separator = " ", UserTable.name, UserTable.paternal, UserTable.maternal)
+			val allPatients = TotalTicket.slice(TotalTicket.id).selectAll().map {
+				it[TotalTicket.id].value
+			}
+			val finalResponse = mutableListOf<TicketResponse>()
+			allPatients.forEach { patientId ->
+				val allTickets = TicketTable.select {
+					TicketTable.patientId eq patientId
+				}.map {
+					Ticket(
+						ticketId = it[TicketTable.id].value,
+						concept = it[TicketTable.concept],
+						amount = it[TicketTable.amount]
+					)
+				}
+				finalResponse.add(
+					TicketResponse(
+						patientId = patientId,
+						patientFullName = UserTable.slice(columnFullName).select { UserTable.id eq patientId }
+							.single()[columnFullName],
+						tickets = allTickets,
+						total = TotalTicket.slice(TotalTicket.totalTicket).select {
+							TotalTicket.id eq patientId
+						}.single()[TotalTicket.totalTicket]
+					)
+				)
+			}
+			call.respond(status = HttpStatusCode.OK, message = finalResponse)
+		}
+	}
+	
+	delete("/emitTicket") {
+		val request = try {
+			call.receive<EmitTicketRequest>()
+		} catch (e: CannotTransformContentToTypeException) {
+			call.respond(status = HttpStatusCode.NotAcceptable, message = e.message.orEmpty())
+			return@delete
+		}
+		newSuspendedTransaction {
+			TotalTicket.deleteWhere {
+				id eq request.patientId
+			}
+			TicketTable.deleteWhere {
+				patientId eq request.patientId
+			}
+			call.respond(status = HttpStatusCode.Accepted, message = request.patientId)
 		}
 	}
 }

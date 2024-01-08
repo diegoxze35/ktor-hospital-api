@@ -25,7 +25,14 @@ val AuthenticationWithRolesPlugin =
 					"/api/cancelCite"
 				),
 				UserRole.Doctor to setOf("/api/doctorMedicalAppointments", "/api/generateMedicalPrescription"),
-				UserRole.Receptionist to setOf("/api/addUser", "/api/allSpecialities", "/api/allUsers", "/api/updateIsActive")
+				UserRole.Receptionist to setOf(
+					"/api/addUser",
+					"/api/allSpecialities",
+					"/api/allUsers",
+					"/api/updateIsActive",
+					"/api/allTickets",
+					"/api/emitTicket"
+				)
 			)
 		}
 	) {
